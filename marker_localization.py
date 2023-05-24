@@ -45,24 +45,24 @@ def main():
     # master.wait_heartbeat()
     # print('Hearbeat Received!')
 
-    while True:
-        # Open the video capture from source 0
-        if cap is None or not cap.isOpened():
-            try:
-                cap = cv2.VideoCapture(0)
-                if cap.isOpened():
-                    print('Video capture was opened successfully.')
-                else:
-                    print('Failed to open video capture. Retrying in 1 second...')
+    try:
+        while True:
+            # Open the video capture from source 0
+            if cap is None or not cap.isOpened():
+                try:
+                    cap = cv2.VideoCapture(0)
+                    if cap.isOpened():
+                        print('Video capture was opened successfully.')
+                    else:
+                        print('Failed to open video capture. Retrying in 1 second...')
+                        time.sleep(1) # Wait for 1 second before retrying
+
+                except cv2.error as e:
+                    print('Error:', str(e))
+                    print('Retrying in 1 second...')
                     time.sleep(1) # Wait for 1 second before retrying
 
-            except cv2.error as e:
-                print('Error:', str(e))
-                print('Retrying in 1 second...')
-                time.sleep(1) # Wait for 1 second before retrying
-
-        else:
-            try:
+            else:
                 # Read a frame from the video capture
                 ret, frame = cap.read()
                 if not ret:
@@ -135,11 +135,10 @@ def main():
                 if key == ord('q'):
                     break
 
-            finally:
-                # Release the video capture and destroy all windows
-                cap.release()
-                cv2.destroyAllWindows()
-                break
+    finally:
+        # Release the video capture and destroy all windows
+        cap.release()
+        cv2.destroyAllWindows()
 
 # Run the main function
 if __name__ == '__main__':
