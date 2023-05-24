@@ -4,11 +4,22 @@ import numpy as np
 
 def create_aruco_marker_board(markers_y, markers_x, marker_length, marker_separation, output_file):
     # Define the parameters for the marker board
-    board = aruco.GridBoard_create(markers_y, markers_x, marker_length, marker_separation, aruco.getPredefinedDictionary(aruco.DICT_6X6_250))
+    board = aruco.GridBoard_create(markers_y, markers_x, marker_length, marker_separation, aruco.getPredefinedDictionary(aruco.DICT_6X6_1000))
 
     # Generate the marker board image
     size = (marker_length + marker_separation) * markers_y
     board_image = board.draw((size, size))
+
+    # Add black squares around each marker
+    for marker_id in range(board.markerCount):
+        corners, _ = board.getMarkerCorners(marker_id)
+        corners = np.int0(corners)
+
+        # Calculate the offset for the square
+        offset = 10
+
+        # Draw the black square
+        cv2.drawContours(board_image, [corners], -1, (0, 0, 0), thickness=1)
 
     # Rotate the marker board image by 90 degrees counterclockwise
     board_image = np.rot90(board_image)
