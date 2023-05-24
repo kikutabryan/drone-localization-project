@@ -5,11 +5,11 @@ from pymavlink import mavutil
 
 def main():
     # Define the size of the marker in meters and the spacing between them
-    marker_size = 0.027
-    marker_spacing = 0.0054
+    marker_size = 0.05
+    marker_spacing = 0.01
 
     # Define the aruco dictionary and parameters
-    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
     aruco_params = cv2.aruco.DetectorParameters_create()
 
     # Load the camera matrix and dist coeffs from numpy array files
@@ -40,9 +40,9 @@ def main():
     cap = None
 
     # Create the aruco board object with 4x4 grid and 16 markers
-    markers_x = 4
-    markers_y = 4
-    board = cv2.aruco.GridBoard_create(markers_x, markers_y, marker_size, marker_spacing, aruco_dict)
+    markers_x = 2
+    markers_y = 2
+    board = cv2.aruco.GridBoard_create(markers_y, markers_x, marker_size, marker_spacing, aruco_dict)
 
     # Set the x y z coordinates
     x = 0
