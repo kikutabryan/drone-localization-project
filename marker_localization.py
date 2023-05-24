@@ -100,9 +100,9 @@ def main():
                     # Get the XYZ coordinates from the array
                     x = tvec[0, 0]
                     y = tvec[1, 0]
-                    z = tvec[2, 0]
+                    z = -tvec[2, 0]
 
-                    print('X: ', x, 'Y: ', y, 'Z: ', z)
+                    print('X: ', format(x, ".2f"), 'Y: ', format(y, ".2f"), 'Z: ', format(z, ".2f"))
 
                 # Create a message with a vision position estimate
                 # msg = master.mav.vision_position_estimate_encode(
@@ -126,7 +126,7 @@ def main():
                 # print(msg)
                 
                 # Show the frame in a window
-                cv2.imshow('Aruco Marker Board', frame)
+                # cv2.imshow('Aruco Marker Board', frame)
                 
                 # Wait for a key press for 1 ms
                 key = cv2.waitKey(1)
