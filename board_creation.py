@@ -1,13 +1,17 @@
 import cv2
 from cv2 import aruco
+import numpy as np
 
-def create_aruco_marker_board(markers_x, markers_y, marker_length, marker_separation, output_file):
+def create_aruco_marker_board(markers_y, markers_x, marker_length, marker_separation, output_file):
     # Define the parameters for the marker board
-    board = aruco.GridBoard_create(markers_x, markers_y, marker_length, marker_separation, aruco.getPredefinedDictionary(aruco.DICT_6X6_250))
+    board = aruco.GridBoard_create(markers_y, markers_x, marker_length, marker_separation, aruco.getPredefinedDictionary(aruco.DICT_6X6_250))
 
     # Generate the marker board image
-    size = (marker_length + marker_separation) * markers_x
+    size = (marker_length + marker_separation) * markers_y
     board_image = board.draw((size, size))
+
+    # Rotate the marker board image by 90 degrees counterclockwise
+    board_image = np.rot90(board_image)
 
     # Save the marker board image to a file
     cv2.imwrite(output_file, board_image)
@@ -22,4 +26,4 @@ marker_separation = 20  # Separation between markers (in pixels)
 output_file = "marker_board.png"  # Output file name
 
 # Create the ArUco marker board
-create_aruco_marker_board(markers_x, markers_y, marker_length, marker_separation, output_file)
+create_aruco_marker_board(markers_y, markers_x, marker_length, marker_separation, output_file)
