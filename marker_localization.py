@@ -3,48 +3,48 @@ import numpy as np
 import time
 from pymavlink import mavutil
 
-# Define the size of the marker in meters and the spacing between them
-marker_size = 0.027
-marker_spacing = 0.0054
-
-# Define the aruco dictionary and parameters
-aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
-aruco_params = cv2.aruco.DetectorParameters_create()
-
-# Load the camera matrix and dist coeffs from numpy array files
-camera_matrix = np.load('camera_matrix.npy')
-dist_coeffs = np.load('dist_coeffs.npy')
-
-# Video capture object
-cap = None
-
-# Create the aruco board object with 4x4 grid and 16 markers
-markers_x = 4
-markers_y = 4
-board = cv2.aruco.GridBoard_create(markers_x, markers_y, marker_size, marker_spacing, aruco_dict)
-
-# Set the x y z coordinates
-x = 0
-y = 0
-z = 0
-
-# Rate limiter set up
-frequency = 30
-period = 1 / frequency
-t0 = time.perf_counter()
-time_counter = t0
-target_time = t0
-
-# Connection information
-connection_address = '/dev/ttyTHS1'
-baud_rate = 57600
-
-# Create connection
-master = mavutil.mavlink_connection(connection_address, baud=baud_rate)
-master.wait_heartbeat()
-print('Hearbeat Received!')
-
 def main():
+    # Define the size of the marker in meters and the spacing between them
+    marker_size = 0.027
+    marker_spacing = 0.0054
+
+    # Define the aruco dictionary and parameters
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
+    aruco_params = cv2.aruco.DetectorParameters_create()
+
+    # Load the camera matrix and dist coeffs from numpy array files
+    camera_matrix = np.load('camera_matrix.npy')
+    dist_coeffs = np.load('dist_coeffs.npy')
+
+    # Video capture object
+    cap = None
+
+    # Create the aruco board object with 4x4 grid and 16 markers
+    markers_x = 4
+    markers_y = 4
+    board = cv2.aruco.GridBoard_create(markers_x, markers_y, marker_size, marker_spacing, aruco_dict)
+
+    # Set the x y z coordinates
+    x = 0
+    y = 0
+    z = 0
+
+    # Rate limiter set up
+    frequency = 30
+    period = 1 / frequency
+    t0 = time.perf_counter()
+    time_counter = t0
+    target_time = t0
+
+    # Connection information
+    # connection_address = '/dev/ttyTHS1'
+    # baud_rate = 57600
+
+    # Create connection
+    # master = mavutil.mavlink_connection(connection_address, baud=baud_rate)
+    # master.wait_heartbeat()
+    # print('Hearbeat Received!')
+
     while True:
         # Open the video capture from source 0
         if cap is None or not cap.isOpened():
@@ -105,15 +105,15 @@ def main():
                     print('X: ', x, 'Y: ', y, 'Z: ', z)
 
                 # Create a message with a vision position estimate
-                msg = master.mav.vision_position_estimate_encode(
-                    usec = int(time.time() * 1000000), # Current time in microseconds
-                    x = x, # X position in meters
-                    y = y, # Y position in meters
-                    z = z, # Z position in meters
-                    roll = 0, # Set roll angle to zero
-                    pitch = 0, # Set pitch angle to zero
-                    yaw = 0 # Set yaw angle to zero
-                )
+                # msg = master.mav.vision_position_estimate_encode(
+                #     usec = int(time.time() * 1000000), # Current time in microseconds
+                #     x = x, # X position in meters
+                #     y = y, # Y position in meters
+                #     z = z, # Z position in meters
+                #     roll = 0, # Set roll angle to zero
+                #     pitch = 0, # Set pitch angle to zero
+                #     yaw = 0 # Set yaw angle to zero
+                # )
                 
                 # Delay the code to run at set frequency
                 now = time.perf_counter()
@@ -122,8 +122,8 @@ def main():
                     time.sleep(target_time - now)
 
                 # Send the message
-                master.mav.send(msg)
-                print(msg)
+                # master.mav.send(msg)
+                # print(msg)
                 
                 # Show the frame in a window
                 cv2.imshow('Aruco Marker Board', frame)
@@ -139,6 +139,7 @@ def main():
                 # Release the video capture and destroy all windows
                 cap.release()
                 cv2.destroyAllWindows()
+                break
 
 # Run the main function
 if __name__ == '__main__':
