@@ -16,6 +16,26 @@ def main():
     camera_matrix = np.load('camera_matrix.npy')
     dist_coeffs = np.load('dist_coeffs.npy')
 
+    # Video source
+    source = 0 # default camera
+    # source = ( # CSI camera
+    #     "nvarguscamerasrc sensor-id={sensor_id} ! "
+    #     "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
+    #     "nvvidconv flip-method={flip_method} ! "
+    #     "video/x-raw, width=(int){display_width}, height=(int){display_height}, format=(string)BGRx ! "
+    #     "videoconvert ! "
+    #     "video/x-raw, format=(string)BGR ! appsink"
+    # ).format(
+    #     sensor_id=0,
+    #     capture_width=1280,
+    #     capture_height=720,
+    #     display_width=640,
+    #     display_height=360,
+    #     framerate=60,
+    #     flip_method=3
+    # )
+
+
     # Video capture object
     cap = None
 
@@ -50,7 +70,7 @@ def main():
             # Open the video capture from source 0
             if cap is None or not cap.isOpened():
                 try:
-                    cap = cv2.VideoCapture(0)
+                    cap = cv2.VideoCapture(source)
                     if cap.isOpened():
                         print('Video capture was opened successfully.')
                     else:
@@ -135,7 +155,11 @@ def main():
                 if key == ord('q'):
                     break
 
+    except KeyboardInterrupt:
+        print("Program interrupted by user.")
+
     finally:
+        print("Cleaning up...")
         # Release the video capture and destroy all windows
         cap.release()
         cv2.destroyAllWindows()
