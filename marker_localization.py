@@ -5,8 +5,8 @@ from pymavlink import mavutil
 
 def main():
     # Define the size of the marker in meters and the spacing between them
-    marker_size = 0.05
-    marker_spacing = 0.01
+    marker_size = 0.053
+    marker_spacing = 0.0106
 
     # Define the aruco dictionary and parameters
     aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
@@ -35,9 +35,11 @@ def main():
     #     flip_method=3
     # )
 
-
     # Video capture object
     cap = None
+
+    # Display video
+    video_show = False
 
     # Create the aruco board object with 4x4 grid and 16 markers
     markers_x = 2
@@ -122,34 +124,35 @@ def main():
                     y = tvec[1, 0]
                     z = -tvec[2, 0]
 
-                    print('X: ', format(x, ".2f"), 'Y: ', format(y, ".2f"), 'Z: ', format(z, ".2f"))
+                    print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
 
-                # Create a message with a vision position estimate
-                # msg = master.mav.vision_position_estimate_encode(
-                #     usec = int(time.time() * 1000000), # Current time in microseconds
-                #     x = x, # X position in meters
-                #     y = y, # Y position in meters
-                #     z = z, # Z position in meters
-                #     roll = 0, # Set roll angle to zero
-                #     pitch = 0, # Set pitch angle to zero
-                #     yaw = 0 # Set yaw angle to zero
-                # )
-                
-                # Delay the code to run at set frequency
-                now = time.perf_counter()
-                target_time += period
-                if now < target_time:
-                    time.sleep(target_time - now)
+                    # Create a message with a vision position estimate
+                    # msg = master.mav.vision_position_estimate_encode(
+                    #     usec = int(time.time() * 1000000), # Current time in microseconds
+                    #     x = x, # X position in meters
+                    #     y = y, # Y position in meters
+                    #     z = z, # Z position in meters
+                    #     roll = 0, # Set roll angle to zero
+                    #     pitch = 0, # Set pitch angle to zero
+                    #     yaw = 0 # Set yaw angle to zero
+                    # )
+                    
+                    # Delay the code to run at set frequency
+                    now = time.perf_counter()
+                    target_time += period
+                    if now < target_time:
+                        time.sleep(target_time - now)
 
-                # Send the message
-                # master.mav.send(msg)
-                # print(msg)
+                    # Send the message
+                    # master.mav.send(msg)
+                    # print(msg)
                 
-                # Show the frame in a window
-                # cv2.imshow('Aruco Marker Board', frame)
-                
-                # Wait for a key press for 1 ms
-                # cv2.waitKey(1)
+                if video_show:
+                    # Show the frame in a window
+                    cv2.imshow('Aruco Marker Board', frame)
+                    
+                    # Wait for a key press for 1 ms
+                    cv2.waitKey(1)
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
@@ -158,7 +161,8 @@ def main():
         print("Cleaning up...")
         # Release the video capture and destroy all windows
         cap.release()
-        cv2.destroyAllWindows()
+        if video_show:
+            cv2.destroyAllWindows()
 
 # Run the main function
 if __name__ == '__main__':
