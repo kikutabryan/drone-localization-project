@@ -149,11 +149,7 @@ def main():
                 # cv2.imshow('Aruco Marker Board', frame)
                 
                 # Wait for a key press for 1 ms
-                key = cv2.waitKey(1)
-                
-                # If the key is 'q', break the loop
-                if key == ord('q'):
-                    break
+                # cv2.waitKey(1)
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
