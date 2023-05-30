@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import rclpy
+import os
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
 
@@ -19,8 +20,9 @@ class PositionPublisher(Node):
         self.aruco_params = cv2.aruco.DetectorParameters_create()
 
         # Load the camera matrix and dist coeffs from numpy array files
-        self.camera_matrix = np.load('camera_matrix.npy')
-        self.dist_coeffs = np.load('dist_coeffs.npy')
+        package_path = os.path.dirname(os.path.abspath(__file__))
+        self.camera_matrix = np.load(os.path.join(package_path, 'config', 'camera_matrix.npy'))
+        self.dist_coeffs = np.load(os.path.join(package_path, 'config', 'dist_coeffs.npy'))
 
         # Video source
         self.source = 0 # default camera
