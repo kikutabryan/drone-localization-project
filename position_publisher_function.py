@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import cv_bridge
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
@@ -9,7 +8,7 @@ class PositionPublisher(Node):
     def __init__(self):
         super().__init__('position_publisher')
         self.publisher_ = self.create_publisher(PoseStamped, '/mavros/vision_pose/pose', 30)
-        self.rate = self.create_timer(1)
+        self.rate = self.create_timer(1, self.timer_callback)
 
         # Define the size of the marker in meters and the spacing between them
         self.marker_size = 0.053
@@ -35,6 +34,10 @@ class PositionPublisher(Node):
         self.board = cv2.aruco.GridBoard_create(
             self.markers_y, self.markers_x, self.marker_size, self.marker_spacing, self.aruco_dict
         )
+
+    def timer_callback(self):
+        # this is an empty callback function
+        pass
 
     def publish_position(self):
         # Set the x y z coordinates
