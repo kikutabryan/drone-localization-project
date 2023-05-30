@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import time
+import cv_bridge
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
@@ -8,7 +8,8 @@ from geometry_msgs.msg import PoseStamped
 class PositionPublisher(Node):
     def __init__(self):
         super().__init__('position_publisher')
-        self.publisher_ = self.create_publisher(PoseStamped, '/mavros/vision_pose/pose', 10)
+        self.publisher_ = self.create_publisher(PoseStamped, '/mavros/vision_pose/pose', 30)
+        self.rate = self.create_timer(1)
 
         # Define the size of the marker in meters and the spacing between them
         self.marker_size = 0.053
@@ -51,12 +52,12 @@ class PositionPublisher(Node):
                             self.get_logger().info('Video capture was opened successfully.')
                         else:
                             self.get_logger().info('Failed to open video capture. Retrying in 1 second...')
-                            time.sleep(1) # Wait for 1 second before retrying
+                            self.rate.sleep(1) # Wait for 1 second before retrying
 
                     except cv2.error as e:
                         self.get_logger().error('Error: ' + str(e))
                         self.get_logger().info('Retrying in 1 second...')
-                        time.sleep(1) # Wait for 1 second before retrying
+                        self.rate.sleep(1) # Wait for 1 second before retrying
 
                 else:
                     # Read a frame from the video capture
@@ -74,9 +75,6 @@ class PositionPublisher(Node):
 
                     # If at least one marker is detected
                     if ids is not None:
-                        # Draw the detected markers on the frame
-                        frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-
                         # Estimate the pose of the board relative to the camera
                         ret, rvec, tvec = cv2.aruco.estimatePoseBoard(
                             corners, ids, self.board, self.camera_matrix, self.dist_coeffs,
@@ -85,33 +83,28 @@ class PositionPublisher(Node):
 
                         # If the pose estimation is successful
                         if ret > 0:
-                            # Draw the axis of the board on the frame
-                            frame = cv2.drawFrameAxes(
-                                frame, self.camera_matrix, self.dist_coeffs, rvec, tvec, self.marker_size
-                            )
+                            # Determine rvec and tvec from the board's frame of reference
+                            R, jacobian = cv2.Rodrigues(rvec)
+                            R = np.matrix(R).T
+                            inv_tvec = np.dot(R, np.matrix(-tvec))
+                            inv_rvec, jacobian = cv2.Rodrigues(R)
 
-                        # Determine rvec and tvec from the board's frame of reference
-                        R, jacobian = cv2.Rodrigues(rvec)
-                        R = np.matrix(R).T
-                        inv_tvec = np.dot(R, np.matrix(-tvec))
-                        inv_rvec, jacobian = cv2.Rodrigues(R)
+                            # The obtained rvec and tvec are from the camera's frame of reference to the frame of reference of the origin of the marker board
+                            rvec = inv_rvec
+                            tvec = inv_tvec
 
-                        # The obtained rvec and tvec are from the camera's frame of reference to the frame of reference of the origin of the marker board
-                        rvec = inv_rvec
-                        tvec = inv_tvec
+                            # Get the XYZ coordinates from the array
+                            x = tvec[0, 0]
+                            y = tvec[1, 0]
+                            z = -tvec[2, 0]
 
-                        # Get the XYZ coordinates from the array
-                        x = tvec[0, 0]
-                        y = tvec[1, 0]
-                        z = -tvec[2, 0]
-
-                        # Publish the position as a ROS2 message
-                        pose_msg = PoseStamped()
-                        pose_msg.header.frame_id = 'map'  # Set the appropriate frame ID
-                        pose_msg.pose.position.x = x
-                        pose_msg.pose.position.y = y
-                        pose_msg.pose.position.z = z
-                        self.publisher_.publish(pose_msg)
+                            # Publish the position as a ROS2 message
+                            pose_msg = PoseStamped()
+                            pose_msg.header.frame_id = 'map'  # Set the appropriate frame ID
+                            pose_msg.pose.position.x = x
+                            pose_msg.pose.position.y = y
+                            pose_msg.pose.position.z = z
+                            self.publisher_.publish(pose_msg)
 
         except KeyboardInterrupt:
             self.get_logger().info("Program interrupted by user.")
@@ -123,9 +116,13 @@ class PositionPublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
+
     position_publisher = PositionPublisher()
+
     position_publisher.publish_position()
+
     rclpy.spin(position_publisher)
+
     position_publisher.destroy_node()
     rclpy.shutdown()
 
