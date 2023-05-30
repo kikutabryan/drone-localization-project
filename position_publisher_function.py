@@ -20,9 +20,8 @@ class PositionPublisher(Node):
         self.aruco_params = cv2.aruco.DetectorParameters_create()
 
         # Load the camera matrix and dist coeffs from numpy array files
-        package_path = os.path.dirname(os.path.abspath(__file__))
-        self.camera_matrix = np.load(os.path.join(package_path, 'config', 'camera_matrix.npy'))
-        self.dist_coeffs = np.load(os.path.join(package_path, 'config', 'dist_coeffs.npy'))
+        self.camera_matrix = np.load(os.path.abspath('camera_matrix.npy'))
+        self.dist_coeffs = np.load(os.path.abspath('dist_coeffs.npy'))
 
         # Video source
         self.source = 0 # default camera
