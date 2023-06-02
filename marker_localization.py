@@ -106,43 +106,43 @@ def main():
                         # Draw the axis of the board on the frame
                         frame = cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, marker_size)
 
-                    # Determine rvec and tvec from the board's frame of reference
-                    R, jacobian = cv2.Rodrigues(rvec)
-                    R = np.matrix(R).T
-                    inv_tvec = np.dot(R, np.matrix(-tvec))
-                    inv_rvec, jacobian = cv2.Rodrigues(R)
+                        # Determine rvec and tvec from the board's frame of reference
+                        R, jacobian = cv2.Rodrigues(rvec)
+                        R = np.matrix(R).T
+                        inv_tvec = np.dot(R, np.matrix(-tvec))
+                        inv_rvec, jacobian = cv2.Rodrigues(R)
 
-                    # The obtained rvec and tvec are from the camera's frame of reference to the frame of reference of the origin of the marker board
-                    rvec = inv_rvec
-                    tvec = inv_tvec
+                        # The obtained rvec and tvec are from the camera's frame of reference to the frame of reference of the origin of the marker board
+                        rvec = inv_rvec
+                        tvec = inv_tvec
 
-                    # Get the XYZ coordinates from the array
-                    x = tvec[0, 0]
-                    y = tvec[1, 0]
-                    z = -tvec[2, 0]
+                        # Get the XYZ coordinates from the array
+                        x = tvec[0, 0]
+                        y = tvec[1, 0]
+                        z = -tvec[2, 0]
 
-                    print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
+                        print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
 
-                    # Create a message with a vision position estimate
-                    # msg = master.mav.vision_position_estimate_encode(
-                    #     usec = int(time.time() * 1000000), # Current time in microseconds
-                    #     x = x, # X position in meters
-                    #     y = y, # Y position in meters
-                    #     z = z, # Z position in meters
-                    #     roll = 0, # Set roll angle to zero
-                    #     pitch = 0, # Set pitch angle to zero
-                    #     yaw = 0 # Set yaw angle to zero
-                    # )
-                    
-                    # Delay the code to run at set frequency
-                    now = time.perf_counter()
-                    target_time += period
-                    if now < target_time:
-                        time.sleep(target_time - now)
+                        # Create a message with a vision position estimate
+                        # msg = master.mav.vision_position_estimate_encode(
+                        #     usec = int(time.time() * 1000000), # Current time in microseconds
+                        #     x = x, # X position in meters
+                        #     y = y, # Y position in meters
+                        #     z = z, # Z position in meters
+                        #     roll = 0, # Set roll angle to zero
+                        #     pitch = 0, # Set pitch angle to zero
+                        #     yaw = 0 # Set yaw angle to zero
+                        # )
+                        
+                        # Delay the code to run at set frequency
+                        now = time.perf_counter()
+                        target_time += period
+                        if now < target_time: 
+                            time.sleep(target_time - now)
 
-                    # Send the message
-                    # master.mav.send(msg)
-                    # print(msg)
+                        # Send the message
+                        # master.mav.send(msg)
+                        # print(msg)
                 
                 if video_show:
                     # Show the frame in a window
