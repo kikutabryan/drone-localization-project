@@ -17,26 +17,26 @@ def main():
     dist_coeffs = np.load('dist_coeffs.npy')
 
     # Video source
-    source = 0 # default camera
-    # source = ( # CSI camera
-    #     "nvarguscamerasrc sensor-id={sensor_id} ! "
-    #     "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
-    #     "nvvidconv flip-method={flip_method} ! "
-    #     "videoconvert ! "
-    #     "video/x-raw, format=(string)BGR ! appsink"
-    # ).format(
-    #     sensor_id=0,
-    #     capture_width=1280,
-    #     capture_height=720,
-    #     framerate=60,
-    #     flip_method=3
-    # )
+    # source = 0 # default camera
+    source = ( # CSI camera
+        "nvarguscamerasrc sensor-id={sensor_id} ! "
+        "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
+        "nvvidconv flip-method={flip_method} ! "
+        "videoconvert ! "
+        "video/x-raw, format=(string)BGR ! appsink"
+    ).format(
+        sensor_id=0,
+        capture_width=1280,
+        capture_height=720,
+        framerate=60,
+        flip_method=3
+    )
 
     # Video capture object
     cap = None
 
     # Display video
-    video_show = True
+    video_show = False
 
     # Create the aruco board object with 4x4 grid and 16 markers
     markers_x = 2
