@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import time
-from pymavlink import mavutil
+import gi
 
 def main():
     # Define the size of the marker in meters and the spacing between them
@@ -35,9 +35,6 @@ def main():
     # Video capture object
     cap = None
 
-    # Display video
-    video_show = False
-
     # Create the aruco board object with 4x4 grid and 16 markers
     markers_x = 2
     markers_y = 2
@@ -55,14 +52,8 @@ def main():
     time_counter = t0
     target_time = t0
 
-    # Connection information
-    # connection_address = '/dev/ttyTHS1'
-    # baud_rate = 57600
-
-    # Create connection
-    # master = mavutil.mavlink_connection(connection_address, baud=baud_rate)
-    # master.wait_heartbeat()
-    # print('Hearbeat Received!')
+    # GStreamer pipeline for video streaming
+    pipeline = "appsrc ! videoconvert ! video/x-raw, format=(string)BGR ! nvvidconv ! omxh264enc ! h264parse ! rtph264pay ! udpsink host={host_ip} port={port}"
 
     try:
         while True:
@@ -86,21 +77,21 @@ def main():
                 ret, frame = cap.read()
                 if not ret:
                     break
-                
+
                 # Convert the frame to grayscale
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                
+
                 # Detect the aruco markers in the frame
                 corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=aruco_params)
-                
+
                 # If at least one marker is detected
                 if ids is not None:
                     # Draw the detected markers on the frame
                     frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-                    
+
                     # Estimate the pose of the board relative to the camera
                     ret, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, board, camera_matrix, dist_coeffs, None, None, False)
-                    
+
                     # If the pose estimation is successful
                     if ret > 0:
                         # Draw the axis of the board on the frame
@@ -123,33 +114,14 @@ def main():
 
                         print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
 
-                        # Create a message with a vision position estimate
-                        # msg = master.mav.vision_position_estimate_encode(
-                        #     usec = int(time.time() * 1000000), # Current time in microseconds
-                        #     x = x, # X position in meters
-                        #     y = y, # Y position in meters
-                        #     z = z, # Z position in meters
-                        #     roll = 0, # Set roll angle to zero
-                        #     pitch = 0, # Set pitch angle to zero
-                        #     yaw = 0 # Set yaw angle to zero
-                        # )
-                        
                         # Delay the code to run at set frequency
                         now = time.perf_counter()
                         target_time += period
                         if now < target_time: 
                             time.sleep(target_time - now)
 
-                        # Send the message
-                        # master.mav.send(msg)
-                        # print(msg)
-                
-                if video_show:
-                    # Show the frame in a window
-                    cv2.imshow('Aruco Marker Board', frame)
-                    
-                    # Wait for a key press for 1 ms
-                    cv2.waitKey(1)
+                        # Send the frame using GStreamer
+                        send_frame(frame, pipeline)
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
@@ -158,8 +130,19 @@ def main():
         print("Cleaning up...")
         # Release the video capture and destroy all windows
         cap.release()
-        if video_show:
-            cv2.destroyAllWindows()
+
+def send_frame(frame, pipeline):
+    # Get the dimensions of the frame
+    height, width, channels = frame.shape
+
+    # Create a VideoWriter object with GStreamer pipeline
+    out = cv2.VideoWriter(pipeline, cv2.CAP_GSTREAMER, 0, 30, (width, height))
+
+    # Write the frame to the VideoWriter
+    out.write(frame)
+
+    # Release the VideoWriter
+    out.release()
 
 # Run the main function
 if __name__ == '__main__':
