@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import time
-import gi
 
 def main():
     # Define the size of the marker in meters and the spacing between them
@@ -16,6 +15,10 @@ def main():
     camera_matrix = np.load('camera_matrix.npy')
     dist_coeffs = np.load('dist_coeffs.npy')
 
+    # Video dimensions
+    width = 1280
+    height = 720
+
     # Video source
     # source = 0 # default camera
     source = ( # CSI camera
@@ -26,14 +29,26 @@ def main():
         "video/x-raw, format=(string)BGR ! appsink"
     ).format(
         sensor_id=0,
-        capture_width=1280,
-        capture_height=720,
+        capture_width=width,
+        capture_height=height,
         framerate=60,
         flip_method=3
     )
 
     # Video capture object
     cap = None
+
+    # Pipeline for sending video
+    pipeline = (
+        "appsrc ! "
+        "videoconvert ! "
+        "x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! "
+        "rtph264pay ! "
+        "udpsink host=10.0.0.161 port=5600"
+    )
+
+    # Create a VideoWriter object with the GStreamer pipeline
+    out = cv2.VideoWriter(pipeline, cv2.CAP_GSTREAMER, 0, 30, (width, height), True)
 
     # Create the aruco board object with 4x4 grid and 16 markers
     markers_x = 2
@@ -117,8 +132,8 @@ def main():
                         if now < target_time: 
                             time.sleep(target_time - now)
 
-                # Send the frame using GStreamer
-                send_frame(frame)
+                # Write the frame to the VideoWriter
+                out.write(frame)
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
@@ -126,36 +141,7 @@ def main():
     finally:
         print("Cleaning up...")
         # Release the video capture and destroy all windows
-        cap.release()
-
-def send_frame(frame):
-    # Get the dimensions of the frame
-    height, width, channels = frame.shape
-
-    # Create a GStreamer pipeline
-    pipeline = (
-        "appsrc ! "
-        "videoconvert ! "
-        "video/x-raw, format=BGR ! "
-        "queue ! "
-        "videoconvert ! "
-        "video/x-raw, format=RGBA ! "
-        "nvvidconv ! "
-        "nvv4l2h264enc ! "
-        "h264parse ! "
-        "rtph264pay config-interval=1 ! "
-        "udpsink host=10.0.0.161 port=5600"
-    )
-
-    # Create a VideoWriter object with the GStreamer pipeline
-    out = cv2.VideoWriter(pipeline, cv2.CAP_GSTREAMER, 0, 30, (width, height))
-
-    # Write the frame to the VideoWriter
-    out.write(frame)
-
-    # Release the VideoWriter
-    out.release()
-
+        cap.release()  
 
 # Run the main function
 if __name__ == '__main__':
