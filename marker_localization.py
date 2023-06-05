@@ -128,7 +128,7 @@ def main():
         # Release the video capture and destroy all windows
         cap.release()
 
-def send_frame(frame, pipeline):
+def send_frame(frame):
     # Get the dimensions of the frame
     height, width, channels = frame.shape
 
