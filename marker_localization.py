@@ -120,8 +120,8 @@ def main():
                         if now < target_time: 
                             time.sleep(target_time - now)
 
-                        # Send the frame using GStreamer
-                        send_frame(frame, pipeline)
+                # Send the frame using GStreamer
+                send_frame(frame, pipeline)
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
