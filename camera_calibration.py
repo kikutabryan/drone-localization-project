@@ -54,23 +54,23 @@ def calibrate_camera(source, pattern_size, square_size, save_path):
     return camera_matrix, dist_coeffs
 
 if __name__ == '__main__':
-    source = 0  # Default camera
-    # source = ( # CSI camera
-    #     "nvarguscamerasrc sensor-id={sensor_id} ! "
-    #     "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
-    #     "nvvidconv flip-method={flip_method} ! "
-    #     "video/x-raw, width=(int){display_width}, height=(int){display_height}, format=(string)BGRx ! "
-    #     "videoconvert ! "
-    #     "video/x-raw, format=(string)BGR ! appsink"
-    # ).format(
-    #     sensor_id=0,
-    #     capture_width=1280,
-    #     capture_height=720,
-    #     display_width=640,
-    #     display_height=360,
-    #     framerate=60,
-    #     flip_method=3
-    # )
+    # source = 0  # Default camera
+    source = ( # CSI camera
+        "nvarguscamerasrc sensor-id={sensor_id} ! "
+        "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
+        "nvvidconv flip-method={flip_method} ! "
+        "video/x-raw, width=(int){display_width}, height=(int){display_height}, format=(string)BGRx ! "
+        "videoconvert ! "
+        "video/x-raw, format=(string)BGR ! appsink"
+    ).format(
+        sensor_id=0,
+        capture_width=1280,
+        capture_height=720,
+        display_width=640,
+        display_height=360,
+        framerate=60,
+        flip_method=3
+    )
 
     pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
     square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
