@@ -49,7 +49,7 @@ def main():
     )
 
     # Create a VideoWriter object with the GStreamer pipeline
-    out = cv2.VideoWriter(pipeline, cv2.CAP_GSTREAMER, 0, 30, (width, height), True)
+    out = cv2.VideoWriter(pipeline, cv2.CAP_GSTREAMER, 0, 60, (width, height), True)
 
     # Create the aruco board object with 4x4 grid and 16 markers
     markers_x = 2
@@ -91,47 +91,47 @@ def main():
                 if not ret:
                     break
 
-                # Convert the frame to grayscale
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                # # Convert the frame to grayscale
+                # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-                # Detect the aruco markers in the frame
-                corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=aruco_params)
+                # # Detect the aruco markers in the frame
+                # corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=aruco_params)
 
-                # If at least one marker is detected
-                if ids is not None:
-                    # Draw the detected markers on the frame
-                    frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
+                # # If at least one marker is detected
+                # if ids is not None:
+                #     # Draw the detected markers on the frame
+                #     frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
-                    # Estimate the pose of the board relative to the camera
-                    ret, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, board, camera_matrix, dist_coeffs, None, None, False)
+                #     # Estimate the pose of the board relative to the camera
+                #     ret, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, board, camera_matrix, dist_coeffs, None, None, False)
 
-                    # If the pose estimation is successful
-                    if ret > 0:
-                        # Draw the axis of the board on the frame
-                        frame = cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, marker_size)
+                #     # If the pose estimation is successful
+                #     if ret > 0:
+                #         # Draw the axis of the board on the frame
+                #         frame = cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, marker_size)
 
-                        # Determine rvec and tvec from the board's frame of reference
-                        R, jacobian = cv2.Rodrigues(rvec)
-                        R = np.matrix(R).T
-                        inv_tvec = np.dot(R, np.matrix(-tvec))
-                        inv_rvec, jacobian = cv2.Rodrigues(R)
+                #         # Determine rvec and tvec from the board's frame of reference
+                #         R, jacobian = cv2.Rodrigues(rvec)
+                #         R = np.matrix(R).T
+                #         inv_tvec = np.dot(R, np.matrix(-tvec))
+                #         inv_rvec, jacobian = cv2.Rodrigues(R)
 
-                        # The obtained rvec and tvec are from the camera's frame of reference to the frame of reference of the origin of the marker board
-                        rvec = inv_rvec
-                        tvec = inv_tvec
+                #         # The obtained rvec and tvec are from the camera's frame of reference to the frame of reference of the origin of the marker board
+                #         rvec = inv_rvec
+                #         tvec = inv_tvec
 
-                        # Get the XYZ coordinates from the array
-                        x = tvec[0, 0]
-                        y = tvec[1, 0]
-                        z = -tvec[2, 0]
+                #         # Get the XYZ coordinates from the array
+                #         x = tvec[0, 0]
+                #         y = tvec[1, 0]
+                #         z = -tvec[2, 0]
 
-                        print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
+                #         print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
 
-                        # Delay the code to run at set frequency
-                        now = time.perf_counter()
-                        target_time += period
-                        if now < target_time: 
-                            time.sleep(target_time - now)
+                #         # Delay the code to run at set frequency
+                #         now = time.perf_counter()
+                #         target_time += period
+                #         if now < target_time: 
+                #             time.sleep(target_time - now)
 
                 # Write the frame to the VideoWriter
                 out.write(frame)
