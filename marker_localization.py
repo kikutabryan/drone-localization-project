@@ -52,9 +52,6 @@ def main():
     time_counter = t0
     target_time = t0
 
-    # GStreamer pipeline for video streaming
-    pipeline = ("appsrc ! videoconvert ! video/x-raw, format=(string)BGR ! videoconvert ! video/x-raw(memory:NVMM) ! nvvidconv ! omxh264enc ! h264parse ! rtph264pay ! udpsink host='{host_ip}' port={port}").format(host_ip='10.0.0.161', port=5600)
-
     try:
         while True:
             # Open the video capture from source 0
@@ -121,7 +118,7 @@ def main():
                             time.sleep(target_time - now)
 
                 # Send the frame using GStreamer
-                send_frame(frame, pipeline)
+                send_frame(frame)
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
@@ -135,7 +132,18 @@ def send_frame(frame, pipeline):
     # Get the dimensions of the frame
     height, width, channels = frame.shape
 
-    # Create a VideoWriter object with GStreamer pipeline
+    # Create a GStreamer pipeline
+    pipeline = (
+        "appsrc ! "
+        "videoconvert ! "
+        "video/x-raw, format=(string)BGR ! "
+        "x264enc ! "
+        "h264parse ! "
+        "rtph264pay ! "
+        "udpsink host=10.0.0.161 port=5600"
+    )
+
+    # Create a VideoWriter object with the GStreamer pipeline
     out = cv2.VideoWriter(pipeline, cv2.CAP_GSTREAMER, 0, 30, (width, height))
 
     # Write the frame to the VideoWriter
@@ -143,6 +151,7 @@ def send_frame(frame, pipeline):
 
     # Release the VideoWriter
     out.release()
+
 
 # Run the main function
 if __name__ == '__main__':
