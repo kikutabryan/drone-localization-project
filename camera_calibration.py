@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
+import time
 
-def calibrate_camera(source, pattern_size, square_size, save_path):
+def calibrate_camera(source, pattern_size, square_size):
     # Define termination criteria for calibration
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -14,30 +15,48 @@ def calibrate_camera(source, pattern_size, square_size, save_path):
     obj_points = []  # 3D points in real-world space
     img_points = []  # 2D points in image plane
 
-    cap = cv2.VideoCapture(source)
+    # Video capture object
+    cap = None
+
     while True:
-        # Read frame from video capture
-        ret, frame = cap.read()
-        if not ret:
-            break
+        # Open the video capture from source 0
+        if cap is None or not cap.isOpened():
+            try:
+                cap = cv2.VideoCapture(source)
+                if cap.isOpened():
+                    print('Video capture was opened successfully.')
+                else:
+                    print('Failed to open video capture. Retrying in 1 second...')
+                    time.sleep(1) # Wait for 1 second before retrying
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            except cv2.error as e:
+                print('Error:', str(e))
+                print('Retrying in 1 second...')
+                time.sleep(1) # Wait for 1 second before retrying
 
-        # Find chessboard corners
-        ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
+        else:
+            # Read frame from video capture
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-        if ret:
-            obj_points.append(object_points)
-            cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-            img_points.append(corners)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            # Draw and display the corners
-            cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
-            cv2.imshow('Chessboard', frame)
+            # Find chessboard corners
+            ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
 
-        cv2.imshow('Video Capture', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+            if ret:
+                obj_points.append(object_points)
+                cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                img_points.append(corners)
+
+                # Draw and display the corners
+                cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
+                cv2.imshow('Chessboard', frame)
+
+            cv2.imshow('Video Capture', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
     # Release the video capture and close windows
     cap.release()
@@ -71,9 +90,8 @@ if __name__ == '__main__':
 
     pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
     square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
-    save_path = 'calibration/'  # Path to save the camera matrix and distortion coefficients
 
-    camera_matrix, dist_coeffs = calibrate_camera(source, pattern_size, square_size, save_path)
+    camera_matrix, dist_coeffs = calibrate_camera(source, pattern_size, square_size)
 
     print('Camera Matrix:')
     print(camera_matrix)
