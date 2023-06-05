@@ -42,7 +42,8 @@ def main():
     pipeline = (
         "appsrc ! "
         "videoconvert ! "
-        "x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! "
+        "x264enc tune=zerolatency speed-preset=superfast ! "
+        "h264parse ! "
         "rtph264pay ! "
         "udpsink host=10.0.0.161 port=5600"
     )
