@@ -53,7 +53,7 @@ def main():
     target_time = t0
 
     # GStreamer pipeline for video streaming
-    pipeline = ("appsrc ! videoconvert ! video/x-raw, format=(string)BGR ! nvvidconv ! omxh264enc ! h264parse ! rtph264pay ! udpsink host={host_ip} port={port}").format(host_ip='10.0.0.161', port=5600)
+    pipeline = ("appsrc ! videoconvert ! video/x-raw, format=(string)BGR ! videoconvert ! video/x-raw(memory:NVMM) ! nvvidconv ! omxh264enc ! h264parse ! rtph264pay ! udpsink host='{host_ip}' port={port}").format(host_ip='10.0.0.161', port=5600)
 
     try:
         while True:
