@@ -39,20 +39,21 @@ def calibrate_camera(source, pattern_size, square_size):
             ret, frame = cap.read()
             if not ret:
                 break
+            
+            # # Convert the frame from the video capture
+            # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # # Find chessboard corners
+            # ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
 
-            # Find chessboard corners
-            ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
+            # if ret:
+            #     obj_points.append(object_points)
+            #     cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+            #     img_points.append(corners)
 
-            if ret:
-                obj_points.append(object_points)
-                cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-                img_points.append(corners)
-
-                # Draw and display the corners
-                cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
-                cv2.imshow('Chessboard', frame)
+            #     # Draw and display the corners
+            #     cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
+            #     cv2.imshow('Chessboard', frame)
 
             cv2.imshow('Video Capture', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
