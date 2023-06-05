@@ -59,15 +59,12 @@ if __name__ == '__main__':
         "nvarguscamerasrc sensor-id={sensor_id} ! "
         "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
         "nvvidconv flip-method={flip_method} ! "
-        "video/x-raw, width=(int){display_width}, height=(int){display_height}, format=(string)BGRx ! "
         "videoconvert ! "
         "video/x-raw, format=(string)BGR ! appsink"
     ).format(
         sensor_id=0,
         capture_width=1280,
         capture_height=720,
-        display_width=640,
-        display_height=360,
         framerate=60,
         flip_method=3
     )
