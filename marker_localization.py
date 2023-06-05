@@ -136,10 +136,14 @@ def send_frame(frame):
     pipeline = (
         "appsrc ! "
         "videoconvert ! "
-        "video/x-raw, format=(string)BGR ! "
-        "x264enc ! "
+        "video/x-raw, format=BGR ! "
+        "queue ! "
+        "videoconvert ! "
+        "video/x-raw, format=RGBA ! "
+        "nvvidconv ! "
+        "nvv4l2h264enc ! "
         "h264parse ! "
-        "rtph264pay ! "
+        "rtph264pay config-interval=1 ! "
         "udpsink host=10.0.0.161 port=5600"
     )
 
