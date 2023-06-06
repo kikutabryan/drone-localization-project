@@ -88,7 +88,7 @@ if __name__ == '__main__':
     #     framerate=60,
     #     flip_method=3
     # )
-    source = "udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! video/x-raw, format=BGR ! appsink"
+    source = "udpsrc port=5600 ! application/x-rtp ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! appsink"
 
     pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
     square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
