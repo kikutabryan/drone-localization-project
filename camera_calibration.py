@@ -22,7 +22,7 @@ def calibrate_camera(source, pattern_size, square_size):
         # Open the video capture from source 0
         if cap is None or not cap.isOpened():
             try:
-                cap = cv2.VideoCapture(source)
+                cap = cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
                 if cap.isOpened():
                     print('Video capture was opened successfully.')
                 else:
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     #     framerate=60,
     #     flip_method=3
     # )
-    source = "udpsrc port=5600 ! application/x-rtp ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! video/x-raw, format=BGR ! appsink"
+    source = "udpsrc port=5600 ! application/x-rtp ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! appsink"
 
     pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
     square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
