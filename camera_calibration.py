@@ -75,19 +75,20 @@ def calibrate_camera(source, pattern_size, square_size):
 
 if __name__ == '__main__':
     # source = 0  # Default camera
-    source = ( # CSI camera
-        "nvarguscamerasrc sensor-id={sensor_id} ! "
-        "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
-        "nvvidconv flip-method={flip_method} ! "
-        "videoconvert ! "
-        "video/x-raw, format=(string)BGR ! appsink"
-    ).format(
-        sensor_id=0,
-        capture_width=1280,
-        capture_height=720,
-        framerate=60,
-        flip_method=3
-    )
+    # source = ( # CSI camera
+    #     "nvarguscamerasrc sensor-id={sensor_id} ! "
+    #     "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
+    #     "nvvidconv flip-method={flip_method} ! "
+    #     "videoconvert ! "
+    #     "video/x-raw, format=(string)BGR ! appsink"
+    # ).format(
+    #     sensor_id=0,
+    #     capture_width=1280,
+    #     capture_height=720,
+    #     framerate=60,
+    #     flip_method=3
+    # )
+    source = "udpsrc port=5600 ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! video/x-raw, format=BGR ! appsink"
 
     pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
     square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
