@@ -1,4 +1,4 @@
 This is to send video from realsense camera to qgroundcontrol
 gst-launch-1.0 -v v4l2src device=/dev/video2 ! videoconvert ! videoscale ! video/x-raw,width=640,height=480 ! x264enc speed-preset=ultrafast tune=zerolatency ! h264parse !  rtph264pay config-interval=1 ! udpsink host=192.168.137.224 port=5600
 
-"gst-launch-1.0 ! nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=3 ! videoconvert ! x264enc tune=zerolatency speed-preset=superfast ! h264parse ! rtph264pay ! udpsink host=10.0.0.161 port=5600"
+gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1' ! nvvidconv flip-method=3 ! videoconvert ! queue ! x264enc tune=zerolatency speed-preset=superfast ! h264parse ! rtph264pay ! queue ! udpsink host=10.0.0.161 port=5600
