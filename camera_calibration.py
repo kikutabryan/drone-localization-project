@@ -7,7 +7,7 @@ def main():
     source = 2
 
     # Display video
-    display = False
+    display = True
 
     # Set the source address based on the selected source
     if source == 0:
