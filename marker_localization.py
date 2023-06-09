@@ -3,17 +3,26 @@ import numpy as np
 import time
 from pymavlink import mavutil
 
+# Constants for camera source
+SOURCE_DEFAULT_CAMERA = 0
+SOURCE_CSI_CAMERA = 1
+
+# Constants for display output
+DISPLAY_NONE = 0
+DISPLAY_WINDOW = 1
+DISPLAY_VIDEO_WRITER = 2
+
 def main():
     # Select the camera source
-    source = 1
+    source = SOURCE_CSI_CAMERA
 
     # Display video
-    display = 2
+    display = DISPLAY_VIDEO_WRITER
 
     # Set the source address based on the selected source
-    if source == 0:
+    if source == SOURCE_DEFAULT_CAMERA:
         address = 0  # Default camera
-    elif source == 1:
+    elif source == SOURCE_CSI_CAMERA:
         address = (
             # CSI camera
             "nvarguscamerasrc sensor-id={sensor_id} ! "
@@ -91,7 +100,8 @@ def main():
                     cap = cv2.VideoCapture(address)
                     if cap.isOpened():
                         print('Video capture was opened successfully.')
-                        if display == 2:
+                        if display == DISPLAY_VIDEO_WRITER:
+                            # Get the video dimensions
                             frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                             frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                             # Create a VideoWriter object with the GStreamer pipeline
@@ -169,12 +179,12 @@ def main():
                         # print(msg)
 
                 # Display the video capture frame
-                if display == 1:
+                if display == DISPLAY_WINDOW:
                     cv2.imshow('Aruco Marker Board', frame)
                     cv2.waitKey(1)
 
                 # Write the frame to the VideoWriter
-                elif display == 2:
+                elif display == DISPLAY_VIDEO_WRITER:
                     out.write(frame)
 
     except KeyboardInterrupt:
@@ -185,9 +195,9 @@ def main():
 
         # Release the video capture and destroy all windows
         cap.release()
-        if display == 1:
+        if display == DISPLAY_WINDOW:
             cv2.destroyAllWindows()
-        elif display == 2:
+        elif display == DISPLAY_VIDEO_WRITER:
             out.release()
 
 # Run the main function
