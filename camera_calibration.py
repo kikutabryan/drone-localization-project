@@ -2,7 +2,27 @@ import cv2
 import numpy as np
 import time
 
-def calibrate_camera(source, pattern_size, square_size):
+def main():
+    # source = 0  # Default camera
+    # source = ( # CSI camera
+    #     "nvarguscamerasrc sensor-id={sensor_id} ! "
+    #     "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
+    #     "nvvidconv flip-method={flip_method} ! "
+    #     "videoconvert ! "
+    #     "video/x-raw, format=(string)BGR ! appsink"
+    # ).format(
+    #     sensor_id=0,
+    #     capture_width=1280,
+    #     capture_height=720,
+    #     framerate=60,
+    #     flip_method=3
+    # )
+    # source = "udpsrc port=5600 ! application/x-rtp,payload=96,encoding-name=H264 ! rtpjitterbuffer mode=1 ! rtph264depay ! h264parse ! decodebin ! videoconvert ! appsink"
+    source = 'video.mp4'
+
+    pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
+    square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
+    
     # Define termination criteria for calibration
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -22,7 +42,7 @@ def calibrate_camera(source, pattern_size, square_size):
         # Open the video capture from source 0
         if cap is None or not cap.isOpened():
             try:
-                cap = cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
+                cap = cv2.VideoCapture(source)
                 if cap.isOpened():
                     print('Video capture was opened successfully.')
                 else:
@@ -40,20 +60,20 @@ def calibrate_camera(source, pattern_size, square_size):
             if not ret:
                 break
             
-            # # Convert the frame from the video capture
-            # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # Convert the frame from the video capture
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            # # Find chessboard corners
-            # ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
+            # Find chessboard corners
+            ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
 
-            # if ret:
-            #     obj_points.append(object_points)
-            #     cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-            #     img_points.append(corners)
+            if ret:
+                obj_points.append(object_points)
+                cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                img_points.append(corners)
 
-            #     # Draw and display the corners
-            #     cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
-            #     cv2.imshow('Chessboard', frame)
+                # Draw and display the corners
+                cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
+                cv2.imshow('Chessboard', frame)
 
             cv2.imshow('Video Capture', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -71,31 +91,5 @@ def calibrate_camera(source, pattern_size, square_size):
     np.save('camera_matrix.npy', camera_matrix)
     np.save('dist_coeffs.npy', dist_coeffs)
 
-    return camera_matrix, dist_coeffs
-
 if __name__ == '__main__':
-    # source = 0  # Default camera
-    # source = ( # CSI camera
-    #     "nvarguscamerasrc sensor-id={sensor_id} ! "
-    #     "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
-    #     "nvvidconv flip-method={flip_method} ! "
-    #     "videoconvert ! "
-    #     "video/x-raw, format=(string)BGR ! appsink"
-    # ).format(
-    #     sensor_id=0,
-    #     capture_width=1280,
-    #     capture_height=720,
-    #     framerate=60,
-    #     flip_method=3
-    # )
-    source = "udpsrc port=5600 ! application/x-rtp ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! video/x-raw,format=BGR ! appsink"
-
-    pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
-    square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
-
-    camera_matrix, dist_coeffs = calibrate_camera(source, pattern_size, square_size)
-
-    print('Camera Matrix:')
-    print(camera_matrix)
-    print('Distortion Coefficients:')
-    print(dist_coeffs)
+    main()

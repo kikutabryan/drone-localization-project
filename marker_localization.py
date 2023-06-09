@@ -4,18 +4,6 @@ import time
 from pymavlink import mavutil
 
 def main():
-    # Define the size of the marker in meters and the spacing between them
-    marker_size = 0.053
-    marker_spacing = 0.0106
-
-    # Define the aruco dictionary and parameters
-    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
-    aruco_params = cv2.aruco.DetectorParameters_create()
-
-    # Load the camera matrix and dist coeffs from numpy array files
-    camera_matrix = np.load('camera_matrix.npy')
-    dist_coeffs = np.load('dist_coeffs.npy')
-
     # Video source
     # source = 0 # default camera
     source = ( # CSI camera
@@ -32,11 +20,17 @@ def main():
         flip_method=3
     )
 
-    # Video capture object
-    cap = None
+    # Define the size of the marker in meters and the spacing between them
+    marker_size = 0.053
+    marker_spacing = 0.0106
 
-    # Display video
-    video_show = False
+    # Define the aruco dictionary and parameters
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
+    aruco_params = cv2.aruco.DetectorParameters_create()
+
+    # Load the camera matrix and dist coeffs from numpy array files
+    camera_matrix = np.load('camera_matrix.npy')
+    dist_coeffs = np.load('dist_coeffs.npy')
 
     # Create the aruco board object with 4x4 grid and 16 markers
     markers_x = 2
@@ -64,6 +58,12 @@ def main():
     # master.wait_heartbeat()
     # print('Hearbeat Received!')
 
+    # Display video
+    video_show = False
+
+    # Video capture object
+    cap = None
+
     try:
         while True:
             # Open the video capture from source 0
@@ -85,7 +85,7 @@ def main():
                 # Read a frame from the video capture
                 ret, frame = cap.read()
                 if not ret:
-                    break
+                    pass
                 
                 # Convert the frame to grayscale
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
