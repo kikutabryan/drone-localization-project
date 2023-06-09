@@ -8,7 +8,7 @@ def main():
     source = 1
 
     # Display video
-    display = False
+    display = 2
 
     # Set the source address based on the selected source
     if source == 0:
@@ -70,6 +70,19 @@ def main():
     # Video capture object
     cap = None
 
+    # Videowriter object
+    out = None
+
+    # Pipeline for sending video
+    pipeline = (
+        "appsrc ! "
+        "videoconvert ! "
+        "x264enc tune=zerolatency speed-preset=superfast ! "
+        "h264parse ! "
+        "rtph264pay ! "
+        "udpsink host=10.0.0.161 port=5600"
+    )
+
     try:
         while True:
             # Open the video capture from the specified address
@@ -78,6 +91,11 @@ def main():
                     cap = cv2.VideoCapture(address)
                     if cap.isOpened():
                         print('Video capture was opened successfully.')
+                        if display == 2:
+                            frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                            frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                            # Create a VideoWriter object with the GStreamer pipeline
+                            out = cv2.VideoWriter(pipeline, cv2.CAP_GSTREAMER, 0, 30, (frame_width, frame_height), True)
                     else:
                         print('Failed to open video capture. Retrying in 1 second...')
                         time.sleep(1)  # Wait for 1 second before retrying
@@ -151,9 +169,13 @@ def main():
                         # print(msg)
 
                 # Display the video capture frame
-                if display:
+                if display == 1:
                     cv2.imshow('Aruco Marker Board', frame)
                     cv2.waitKey(1)
+
+                # Write the frame to the VideoWriter
+                elif display == 2:
+                    out.write(frame)
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
@@ -163,8 +185,10 @@ def main():
 
         # Release the video capture and destroy all windows
         cap.release()
-        if display:
+        if display == 1:
             cv2.destroyAllWindows()
+        elif display == 2:
+            out.release()
 
 # Run the main function
 if __name__ == '__main__':
