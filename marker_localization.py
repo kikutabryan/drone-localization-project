@@ -7,6 +7,9 @@ def main():
     # Select the camera source
     source = 1
 
+    # Display video
+    display = False
+
     # Set the source address based on the selected source
     if source == 0:
         address = 0  # Default camera
@@ -63,9 +66,6 @@ def main():
     # master = mavutil.mavlink_connection(connection_address, baud=baud_rate)
     # master.wait_heartbeat()
     # print('Heartbeat Received!')
-
-    # Display video
-    display = False
 
     # Video capture object
     cap = None
