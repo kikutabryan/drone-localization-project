@@ -3,26 +3,36 @@ import numpy as np
 import time
 
 def main():
-    # source = 0  # Default camera
-    # source = ( # CSI camera
-    #     "nvarguscamerasrc sensor-id={sensor_id} ! "
-    #     "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
-    #     "nvvidconv flip-method={flip_method} ! "
-    #     "videoconvert ! "
-    #     "video/x-raw, format=(string)BGR ! appsink"
-    # ).format(
-    #     sensor_id=0,
-    #     capture_width=1280,
-    #     capture_height=720,
-    #     framerate=60,
-    #     flip_method=3
-    # )
-    # source = "udpsrc port=5600 ! application/x-rtp,payload=96,encoding-name=H264 ! rtpjitterbuffer mode=1 ! rtph264depay ! h264parse ! decodebin ! videoconvert ! appsink"
-    source = 'video.mp4'
+    # Select the camera source
+    source = 2
+
+    # Display video
+    display = False
+
+    # Set the source address based on the selected source
+    if source == 0:
+        address = 0  # Default camera
+    elif source == 1:
+        address = (
+            # CSI camera
+            "nvarguscamerasrc sensor-id={sensor_id} ! "
+            "video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
+            "nvvidconv flip-method={flip_method} ! "
+            "videoconvert ! "
+            "video/x-raw, format=(string)BGR ! appsink"
+        ).format(
+            sensor_id=0,
+            capture_width=1280,
+            capture_height=720,
+            framerate=60,
+            flip_method=3
+        )
+    elif source == 2:
+        address = 'video.mp4'
 
     pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
     square_size = 0.0254  # Size of each square in meters (assuming the calibration pattern is printed on a square grid)
-    
+
     # Define termination criteria for calibration
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -38,58 +48,67 @@ def main():
     # Video capture object
     cap = None
 
-    while True:
-        # Open the video capture from source 0
-        if cap is None or not cap.isOpened():
-            try:
-                cap = cv2.VideoCapture(source)
-                if cap.isOpened():
-                    print('Video capture was opened successfully.')
-                else:
-                    print('Failed to open video capture. Retrying in 1 second...')
-                    time.sleep(1) # Wait for 1 second before retrying
+    try:
+        while True:
+            # Open the video capture from the specified address
+            if cap is None or not cap.isOpened():
+                try:
+                    cap = cv2.VideoCapture(address)
+                    if cap.isOpened():
+                        print('Video capture was opened successfully.')
+                    else:
+                        print('Failed to open video capture. Retrying in 1 second...')
+                        time.sleep(1)  # Wait for 1 second before retrying
 
-            except cv2.error as e:
-                print('Error:', str(e))
-                print('Retrying in 1 second...')
-                time.sleep(1) # Wait for 1 second before retrying
+                except cv2.error as e:
+                    print('Error:', str(e))
+                    print('Retrying in 1 second...')
+                    time.sleep(1)  # Wait for 1 second before retrying
 
-        else:
-            # Read frame from video capture
-            ret, frame = cap.read()
-            if not ret:
-                break
-            
-            # Convert the frame from the video capture
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            else:
+                # Read frame from video capture
+                ret, frame = cap.read()
+                if not ret:
+                    pass
 
-            # Find chessboard corners
-            ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
+                # Convert the frame from the video capture to grayscale
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            if ret:
-                obj_points.append(object_points)
-                cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-                img_points.append(corners)
+                # Find chessboard corners
+                ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
 
-                # Draw and display the corners
-                cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
-                cv2.imshow('Chessboard', frame)
+                if ret:
+                    obj_points.append(object_points)
+                    cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                    img_points.append(corners)
 
-            cv2.imshow('Video Capture', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                    # Draw and display the corners on the original frame
+                    cv2.drawChessboardCorners(frame, pattern_size, corners, ret)
+                    cv2.imshow('Chessboard', frame)
 
-    # Release the video capture and close windows
-    cap.release()
-    cv2.destroyAllWindows()
+                # Display the video capture frame
+                if display:
+                    cv2.imshow('Video Capture', frame)
+                    cv2.waitKey(1)
 
-    # Perform camera calibration
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Convert the last captured frame to grayscale
-    ret, camera_matrix, dist_coeffs, _, _ = cv2.calibrateCamera(obj_points, img_points, gray.shape[::-1], None, None)
+    except KeyboardInterrupt:
+        print("Program interrupted by user")
 
-    # Save camera matrix and distortion coefficients to files
-    np.save('camera_matrix.npy', camera_matrix)
-    np.save('dist_coeffs.npy', dist_coeffs)
+    finally:
+        print("Cleaning up...")
+
+        # Release the video capture
+        cap.release()
+        if display:
+            cv2.destroyAllWindows()
+
+        # Perform camera calibration using the last captured frame
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Convert the last captured frame to grayscale
+        ret, camera_matrix, dist_coeffs, _, _ = cv2.calibrateCamera(obj_points, img_points, gray.shape[::-1], None, None)
+
+        # Save camera matrix and distortion coefficients to files
+        np.save('camera_matrix.npy', camera_matrix)
+        np.save('dist_coeffs.npy', dist_coeffs)
 
 if __name__ == '__main__':
     main()
