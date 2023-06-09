@@ -1,17 +1,25 @@
 import cv2
 import time
 
+# Constants for camera source
+SOURCE_DEFAULT_CAMERA = 0
+SOURCE_CSI_CAMERA = 1
+
+# Constants for display output
+DISPLAY_NONE = 0
+DISPLAY_WINDOW = 1
+
 def main():
     # Select the camera source
-    source = 1
+    source = SOURCE_CSI_CAMERA
     
     # Display video
-    display = False
+    display = DISPLAY_NONE
 
     # Set the source address based on the selected source
-    if source == 0:
+    if source == SOURCE_DEFAULT_CAMERA:
         address = 0  # Default camera
-    elif source == 1:
+    elif source == SOURCE_CSI_CAMERA:
         address = (
             # CSI camera
             "nvarguscamerasrc sensor-id={sensor_id} ! "
@@ -64,7 +72,7 @@ def main():
                 out.write(frame)  # Write the frame to the output video file
 
                 # Display the video capture frame
-                if display:
+                if display == DISPLAY_WINDOW:
                     cv2.imshow('Recording', frame)
                     cv2.waitKey(1)
 
@@ -77,7 +85,7 @@ def main():
         # Release the video capture and destroy all windows
         cap.release()
         out.release()  # Release the video writer object
-        if display:
+        if display == DISPLAY_WINDOW:
             cv2.destroyAllWindows()  # Close all OpenCV windows
 
 # Run the main function

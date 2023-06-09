@@ -2,17 +2,26 @@ import cv2
 import numpy as np
 import time
 
+# Constants for camera source
+SOURCE_DEFAULT_CAMERA = 0
+SOURCE_CSI_CAMERA = 1
+SOURCE_VIDEO_MP4 = 2
+
+# Constants for display output
+DISPLAY_NONE = 0
+DISPLAY_WINDOW = 1
+
 def main():
     # Select the camera source
-    source = 2
+    source = SOURCE_VIDEO_MP4
 
     # Display video
-    display = True
+    display = DISPLAY_WINDOW
 
     # Set the source address based on the selected source
-    if source == 0:
+    if source == SOURCE_DEFAULT_CAMERA:
         address = 0  # Default camera
-    elif source == 1:
+    elif source == SOURCE_CSI_CAMERA:
         address = (
             # CSI camera
             "nvarguscamerasrc sensor-id={sensor_id} ! "
@@ -27,7 +36,7 @@ def main():
             framerate=60,
             flip_method=3
         )
-    elif source == 2:
+    elif source == SOURCE_VIDEO_MP4:
         address = 'video.mp4'
 
     pattern_size = (6, 7)  # Number of inner corners of the calibration pattern
@@ -87,7 +96,7 @@ def main():
                     cv2.imshow('Chessboard', frame)
 
                 # Display the video capture frame
-                if display:
+                if display == DISPLAY_WINDOW:
                     cv2.imshow('Video Capture', frame)
                     cv2.waitKey(1)
 
@@ -99,7 +108,7 @@ def main():
 
         # Release the video capture
         cap.release()
-        if display:
+        if display == DISPLAY_WINDOW:
             cv2.destroyAllWindows()
 
         # Perform camera calibration using the last captured frame
