@@ -2,6 +2,12 @@ import cv2
 from cv2 import aruco
 import numpy as np
 
+def mm_to_pixels(mm, dpi, scale):
+    inches = mm / 25.4
+    pixels = inches * dpi
+    pixels = int(pixels * scale)
+    return pixels
+
 def generate_aruco_marker(marker_id, marker_size, x_label, y_label, output_path):
     # Get the ArUco dictionary
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_1000)
@@ -56,7 +62,7 @@ def generate_aruco_marker(marker_id, marker_size, x_label, y_label, output_path)
 def main():
     start_id = 0
     marker_count = 5
-    marker_size = 200
+    marker_size = mm_to_pixels(100, 96, 1.034875298)
     output_path = "aruco_markers/"
     x_label = "Y"
     y_label = "X"
