@@ -12,6 +12,14 @@ DISPLAY_NONE = 0
 DISPLAY_WINDOW = 1
 DISPLAY_VIDEO_WRITER = 2
 
+# Constants for marker size
+MARKER_SIZE = 0.1
+MARKER_SPACING = 0.1
+
+# Constants for amount of markers
+MARKERS_X = 2
+MARKERS_Y = 2
+
 def main():
     # Select the camera source
     source = SOURCE_CSI_CAMERA
@@ -39,8 +47,8 @@ def main():
         )
 
     # Define the size of the marker in meters and the spacing between them
-    marker_size = 0.053
-    marker_spacing = 0.0106
+    marker_size = MARKER_SIZE
+    marker_spacing = MARKER_SPACING
 
     # Define the aruco dictionary and parameters
     aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
@@ -51,14 +59,9 @@ def main():
     dist_coeffs = np.load('dist_coeffs.npy')
 
     # Create the aruco board object with a 4x4 grid and 16 markers
-    markers_x = 2
-    markers_y = 2
+    markers_x = MARKERS_X
+    markers_y = MARKERS_Y
     board = cv2.aruco.GridBoard_create(markers_y, markers_x, marker_size, marker_spacing, aruco_dict)
-
-    # Set the x, y, and z coordinates
-    x = 0
-    y = 0
-    z = 0
 
     # Rate limiter setup
     frequency = 30
