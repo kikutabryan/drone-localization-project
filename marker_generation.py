@@ -16,7 +16,11 @@ def generate_aruco_marker(marker_id, marker_size, x_label, y_label, output_path)
     # Add a whitespace border around the marker
     border_size = 40
     border_color = 255
-    marker_image_with_border = cv2.copyMakeBorder(marker_image, border_size, border_size, border_size, border_size, cv2.BORDER_CONSTANT, value=border_color)
+    marker_image = cv2.copyMakeBorder(marker_image, border_size, border_size, border_size, border_size, cv2.BORDER_CONSTANT, value=border_color)
+
+    # Add a black border around the white space
+    line_width = 2
+    marker_image = cv2.copyMakeBorder(marker_image, line_width, line_width, line_width, line_width, cv2.BORDER_CONSTANT, value=(0,0,0))
 
     # Set the font properties for the labels
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -38,20 +42,20 @@ def generate_aruco_marker(marker_id, marker_size, x_label, y_label, output_path)
     title_id_position = (marker_size + 2 * border_size - title_size[0]) // 2, (border_size + title_size[1]) // 2
 
     # Add the x-axis and y-axis labels to the marker image with border
-    cv2.putText(marker_image_with_border, x_label, x_label_position, font, font_scale, 0, font_thickness, cv2.LINE_AA)
-    cv2.putText(marker_image_with_border, y_label, y_label_position, font, font_scale, 0, font_thickness, cv2.LINE_AA)
-    cv2.putText(marker_image_with_border, str(marker_id), title_id_position, font, font_scale, 0, font_thickness, cv2.LINE_AA)
+    cv2.putText(marker_image, x_label, x_label_position, font, font_scale, 0, font_thickness, cv2.LINE_AA)
+    cv2.putText(marker_image, y_label, y_label_position, font, font_scale, 0, font_thickness, cv2.LINE_AA)
+    cv2.putText(marker_image, str(marker_id), title_id_position, font, font_scale, 0, font_thickness, cv2.LINE_AA)
 
     # Create the output file for the marker
     output_file = output_path + f"aruco_marker_{marker_id}.png"
 
     # Save the marker image with labels as a PNG file
-    cv2.imwrite(output_file, marker_image_with_border)
+    cv2.imwrite(output_file, marker_image)
 
 
 def main():
     start_id = 0
-    marker_count = 2
+    marker_count = 5
     marker_size = 200
     output_path = "aruco_markers/"
     x_label = "Y"
