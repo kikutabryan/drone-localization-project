@@ -6,11 +6,13 @@ from pymavlink import mavutil
 # Constants for camera source
 SOURCE_DEFAULT_CAMERA = 0
 SOURCE_CSI_CAMERA = 1
+CAMERA = SOURCE_CSI_CAMERA
 
 # Constants for display output
 DISPLAY_NONE = 0
 DISPLAY_WINDOW = 1
 DISPLAY_VIDEO_WRITER = 2
+DISPLAY = DISPLAY_NONE
 
 # Constants for marker size
 MARKER_SIZE = 0.1
@@ -22,10 +24,10 @@ MARKERS_Y = 2
 
 def main():
     # Select the camera source
-    source = SOURCE_CSI_CAMERA
+    source = CAMERA
 
     # Display video
-    display = DISPLAY_VIDEO_WRITER
+    display = DISPLAY
 
     # Set the source address based on the selected source
     if source == SOURCE_DEFAULT_CAMERA:
