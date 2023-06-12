@@ -6,17 +6,19 @@ import time
 SOURCE_DEFAULT_CAMERA = 0
 SOURCE_CSI_CAMERA = 1
 SOURCE_VIDEO_MP4 = 2
+CAMERA = SOURCE_VIDEO_MP4
 
 # Constants for display output
 DISPLAY_NONE = 0
 DISPLAY_WINDOW = 1
+DISPLAY = DISPLAY_WINDOW
 
 def main():
     # Select the camera source
-    source = SOURCE_VIDEO_MP4
+    source = CAMERA
 
     # Display video
-    display = DISPLAY_WINDOW
+    display = DISPLAY
 
     # Set the source address based on the selected source
     if source == SOURCE_DEFAULT_CAMERA:
