@@ -22,6 +22,11 @@ MARKER_SPACING = 0.1
 MARKERS_X = 2
 MARKERS_Y = 2
 
+# Constants for camera offsets
+X_OFFSET = 0
+Y_OFFSET = 0
+Z_OFFSET = 0
+
 def main():
     # Select the camera source
     source = CAMERA
@@ -156,9 +161,9 @@ def main():
                         tvec = inv_tvec
 
                         # Get the XYZ coordinates from the array
-                        x = tvec[0, 0]
-                        y = tvec[1, 0]
-                        z = -tvec[2, 0]
+                        x = tvec[0, 0] - X_OFFSET
+                        y = tvec[1, 0] - Y_OFFSET
+                        z = -tvec[2, 0] - Z_OFFSET
 
                         print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
 
