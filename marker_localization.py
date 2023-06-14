@@ -78,13 +78,13 @@ def main():
     target_time = t0
 
     # Connection information
-    # connection_address = '/dev/ttyTHS1'
-    # baud_rate = 57600
+    connection_address = '/dev/ttyTHS1'
+    baud_rate = 57600
 
     # Create connection
-    # master = mavutil.mavlink_connection(connection_address, baud=baud_rate)
-    # master.wait_heartbeat()
-    # print('Heartbeat Received!')
+    master = mavutil.mavlink_connection(connection_address, baud=baud_rate)
+    master.wait_heartbeat()
+    print('Heartbeat Received!')
 
     # Video capture object
     cap = None
@@ -168,15 +168,15 @@ def main():
                         print('X:', format(x, ".2f"), ' Y:', format(y, ".2f"), ' Z:', format(z, ".2f"))
 
                         # Create a message with a vision position estimate
-                        # msg = master.mav.vision_position_estimate_encode(
-                        #     usec=int(time.time() * 1000000),  # Current time in microseconds
-                        #     x=x,  # X position in meters
-                        #     y=y,  # Y position in meters
-                        #     z=z,  # Z position in meters
-                        #     roll=0,  # Set roll angle to zero
-                        #     pitch=0,  # Set pitch angle to zero
-                        #     yaw=0  # Set yaw angle to zero
-                        # )
+                        msg = master.mav.vision_position_estimate_encode(
+                            usec=int(time.time() * 1000000),  # Current time in microseconds
+                            x=x,  # X position in meters
+                            y=y,  # Y position in meters
+                            z=z,  # Z position in meters
+                            roll=0,  # Set roll angle to zero
+                            pitch=0,  # Set pitch angle to zero
+                            yaw=0  # Set yaw angle to zero
+                        )
 
                         # Delay the code to run at the set frequency
                         now = time.perf_counter()
@@ -185,8 +185,8 @@ def main():
                             time.sleep(target_time - now)
 
                         # Send the message
-                        # master.mav.send(msg)
-                        # print(msg)
+                        master.mav.send(msg)
+                        print(msg)
 
                 # Display the video capture frame
                 if display == DISPLAY_WINDOW:
